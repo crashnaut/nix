@@ -101,6 +101,8 @@
               "telegram"
               "whatsapp"
               "excalidrawz"
+              "maccy"
+              "voiceink"
             ];
 
             # CLI brews kept minimal; include mas so MAS apps can be managed
