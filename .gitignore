@@ -1,0 +1,8 @@
+# Nix
+/result
+/result-*
+.direnv/
+.nix-channels
+# macOS noise
+.DS_Store
+EOF
