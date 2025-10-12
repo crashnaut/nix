@@ -1,222 +1,246 @@
-# Mac nix-darwin System Configuration
+# The SDET's 5-Minute Machine Setup with Nix Flakes
 
-This repository contains a Nix flake configuration for managing system packages and applications on macOS using nix-darwin. It provides a declarative way to install and manage software on your Mac.
+> **Reproducible development environments for Mac, Linux, and Windows in 5 minutes.**
 
-## What This Does
+Stop spending hours setting up new machines. With Nix flakes, you can have a fully configured development environment with all your tools, apps, and dotfiles in **just 5 minutes**.
 
-This configuration will:
-- Install essential applications like Slack, Brave browser, Postman, Logseq, Obsidian, and development tools
-- Make GUI applications properly discoverable in Spotlight and Launchpad (no more missing apps!)
-- Enable Nix flakes and experimental features
-- Allow installation of unfree software (proprietary applications)
-- Manage your system configuration declaratively
+## Why Nix Flakes?
 
-## Prerequisites
+✅ **Declarative**: Your entire setup in one configuration file  
+✅ **Reproducible**: Same setup on every machine, every time  
+✅ **Atomic**: Updates succeed or rollback automatically  
+✅ **Cross-platform**: Works on Mac, Linux, and Windows (WSL2)  
+✅ **Version Control**: Track your environment like code  
 
-You'll need:
-- A Mac (this configuration is specifically for Apple Silicon/ARM64 Macs)
-- Administrator access
-- Internet connection
+## Choose Your Platform
 
-## Initial Setup (Fresh Mac Mini)
+Select your operating system to get started:
 
-### 1. Install Nix Package Manager
+### 🍎 [macOS Setup](./mac/README.md)
+Perfect for MacBooks and Mac desktops. Includes:
+- nix-darwin for system-level config
+- Homebrew integration for GUI apps
+- Spotlight/Launchpad integration
+- MAS (Mac App Store) automation
 
-First, install the Nix package manager using the official installer:
+**[→ Start Mac Setup](./mac/README.md)**
+
+---
+
+### 🐧 [Linux Setup](./linux/README.md)
+For Ubuntu, PopOS, and other Linux distributions. Includes:
+- home-manager for user-level packages
+- No sudo required (after Nix install)
+- Docker integration
+- Works on any Linux distro
+
+**[→ Start Linux Setup](./linux/README.md)**
+
+---
+
+### 🪟 [Windows (WSL2) Setup](./windows/README.md)
+Best Windows development experience using WSL2. Includes:
+- Full Linux environment in Windows
+- Windows filesystem integration
+- Docker Desktop support
+- Native performance
+
+**[→ Start Windows Setup](./windows/README.md)**
+
+---
+
+## What's Included
+
+Each platform configuration includes:
+
+### Development Tools
+- Git, GitHub CLI, Vim
+- Docker/Colima
+- Language-specific toolchains
+
+### CLI Utilities
+- Modern replacements: `ripgrep`, `bat`, `fd`
+- System tools: `htop`, `curl`, `wget`
+- Shell: Zsh with Oh My Zsh
+
+### GUI Applications (Mac/Linux)
+- **Browser**: Brave
+- **Communication**: Slack, Telegram, WhatsApp
+- **Productivity**: Logseq, Postman
+- **Cloud**: Dropbox
+
+## How It Works
+
+1. **Install Nix** (one command, 2 minutes)
+2. **Clone this repo** and customize username
+3. **Run the flake** (one command, 2-3 minutes)
+4. **Done!** All your apps and tools are ready
+
+## The 5-Minute Setup Process
 
 ```bash
+# Step 1: Install Nix (2 minutes)
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+
+# Step 2: Clone and customize (1 minute)
+git clone <your-repo-url>
+cd nix/<your-platform>
+# Edit flake.nix: Change username/hostname
+
+# Step 3: Apply config (2 minutes)
+# See platform-specific README for exact command
+
+# That's it! 🎉
 ```
 
-After installation completes, restart your terminal or run:
-```bash
-. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-```
+## Real-World Benefits
 
-### 2. Verify Nix Installation
+### For SDETs and QA Engineers
+- **Consistent test environments** across team members
+- **Quick CI/CD agent setup** using the same config
+- **Test on multiple OS** with identical tool versions
+- **Document setup as code** instead of wiki pages
 
-Check that Nix is properly installed:
-```bash
-nix --version
-```
+### For Development Teams
+- **Onboard new hires** in minutes, not days
+- **Disaster recovery**: New machine setup is automatic
+- **Eliminate "works on my machine"** problems
+- **Version control your environment** alongside your code
 
-You should see output showing the Nix version.
-
-### 3. Clone This Repository
-
-```bash
-git clone <repository-url>
-cd nix
-```
-
-### 4. Apply the Configuration
-
-Run the following command to apply the nix-darwin configuration:
-
-```bash
-nix run nix-darwin -- switch --flake .#mini
-```
-
-This command will:
-- Download and install nix-darwin
-- Apply the system configuration
-- Install all specified packages
-- Set up application aliases
-
-### 5. Reload Your Shell
-
-After the initial setup, restart your terminal or run:
-```bash
-exec $SHELL
-```
+### For Individual Developers
+- **Multiple machines** stay in sync
+- **Upgrade safely** with automatic rollback
+- **Try new tools** without polluting your system
+- **Clean state** whenever you need it
 
 ## Daily Usage
 
-### Updating Packages
-
-To update all packages to their latest versions:
+Once set up, managing your environment is simple:
 
 ```bash
+# Update all packages
 nix flake update
-darwin-rebuild switch --flake .#mini
+<platform-rebuild-command>
+
+# Add a new package
+# 1. Edit flake.nix
+# 2. Run rebuild command
+
+# Something broke? Rollback!
+<platform-rollback-command>
 ```
 
-### Adding New Packages
+See your platform-specific README for exact commands.
 
-1. Edit `flake.nix`
-2. Add package names to the `environment.systemPackages` list
-3. Apply changes:
-   ```bash
-   darwin-rebuild switch --flake .#mini
-   ```
+## Customization
 
-### Removing Packages
+Each `flake.nix` is heavily commented and designed to be modified:
 
-1. Remove package names from `environment.systemPackages` in `flake.nix`
-2. Apply changes:
-   ```bash
-   darwin-rebuild switch --flake .#mini
-   ```
-
-## Installed Applications
-
-This configuration installs:
-
-### Development Tools
-- **vim** - Text editor
-- **colima** - Container runtime for Docker
-
-### GUI Applications (Available in Spotlight and Launchpad)
-- **Slack** - Team communication
-- **Brave** - Privacy-focused web browser
-- **Postman** - API development tool
-- **Logseq** - Knowledge management
-- **Obsidian** - Note-taking application
-
-**Note**: All GUI applications are automatically made searchable in Spotlight and available in Launchpad thanks to the `mac-app-util` integration. You can launch any app using `⌘ + Space` and typing the app name.
-
-## Key Features
-
-### Spotlight Integration
-This configuration uses [`mac-app-util`](https://github.com/hraban/mac-app-util) to ensure that all Nix-installed GUI applications are properly discoverable in:
-- **Spotlight** - Launch apps with `⌘ + Space`
-- **Launchpad** - Visual app launcher
-- **Dock** - Pin apps and they'll stay pinned across updates
-
-The integration creates "trampoline" launcher apps that macOS recognizes properly, solving the common issue where Nix-installed apps don't appear in Spotlight searches.
+- **Add packages**: Find them at [search.nixos.org](https://search.nixos.org/packages)
+- **Remove what you don't need**: Just delete lines
+- **Change versions**: Pin specific package versions
+- **Add configurations**: Shell aliases, git config, and more
 
 ## File Structure
 
 ```
 .
-├── flake.nix     # Main configuration file
-├── flake.lock    # Lock file with exact package versions
-└── README.md     # This file
+├── README.md           # You are here
+├── flake.nix           # Original Mac-specific config (deprecated)
+├── mac/
+│   ├── flake.nix       # macOS configuration
+│   └── README.md       # Mac setup guide
+├── linux/
+│   ├── flake.nix       # Linux configuration
+│   └── README.md       # Linux setup guide
+└── windows/
+    ├── flake.nix       # WSL2 configuration
+    └── README.md       # Windows setup guide
 ```
-
-### Key Files Explained
-
-- **`flake.nix`** - The main configuration file that defines:
-  - Which packages to install
-  - System settings
-  - How applications are organized
-  
-- **`flake.lock`** - Automatically generated file that locks specific versions of all dependencies for reproducibility
-
-## Customization
-
-### Adding More Packages
-
-You can find packages to add at [search.nixos.org](https://search.nixos.org/packages). Add them to the `environment.systemPackages` list in `flake.nix`.
-
-Example:
-```nix
-environment.systemPackages = with pkgs; [
-  vim colima slack brave postman logseq obsidian
-  # Add new packages here:
-  git
-  node_21
-  python3
-];
-```
-
-### Changing System Configuration
-
-The `configuration` section in `flake.nix` can be extended with additional nix-darwin options. See the [nix-darwin documentation](https://daiderd.com/nix-darwin/) for available options.
 
 ## Troubleshooting
 
-### Command Not Found: darwin-rebuild
-
-If `darwin-rebuild` command is not found after initial setup, try:
+### Nix Installation Issues
 ```bash
-nix run nix-darwin -- switch --flake .#mini
+# Check Nix is installed
+nix --version
+
+# If not found, source the profile
+. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 ```
 
-### Permission Issues
+### Platform-Specific Issues
+See your platform's README for detailed troubleshooting:
+- [Mac Troubleshooting](./mac/README.md#troubleshooting)
+- [Linux Troubleshooting](./linux/README.md#troubleshooting)
+- [Windows Troubleshooting](./windows/README.md#troubleshooting)
 
-If you encounter permission issues, ensure you're running commands as the user who installed Nix (not root).
+## FAQ
 
-### Applications Not Appearing
+**Q: Will this replace my existing setup?**  
+A: No! Nix installs to `/nix` and doesn't touch your existing packages. You can try it safely.
 
-If GUI applications don't appear in Spotlight after rebuilding, try:
-```bash
-darwin-rebuild switch --flake .#mini
-```
+**Q: What if I don't like it?**  
+A: Uninstall is simple: `/nix/nix-installer uninstall`
 
-The `mac-app-util` module automatically creates proper launcher apps that are indexed by Spotlight and Launchpad.
+**Q: Can I use this for work machines?**  
+A: Yes! Many companies use Nix. Check your IT policies first.
 
-### Rollback Changes
+**Q: What's the disk space usage?**  
+A: Initial install: ~2GB. Grows over time but Nix has garbage collection.
 
-If something breaks, you can rollback to a previous generation:
-```bash
-darwin-rebuild rollback
-```
+**Q: Does this work offline?**  
+A: After initial setup, yes! Nix caches everything locally.
 
-## Uninstalling
+## Keeping Updated
 
-To completely remove nix-darwin and Nix:
+This repository will be continuously improved with new features and packages. See the [**Updating Guide**](./UPDATING.md) to learn how to:
+- Pull and apply new changes
+- Handle conflicts with your customizations
+- Rollback if something breaks
+- Stay in sync with improvements
 
-1. Remove the nix-darwin configuration:
-   ```bash
-   sudo /nix/var/nix/profiles/system/bin/darwin-uninstaller
-   ```
+## Resources
 
-2. Remove Nix completely:
-   ```bash
-   /nix/nix-installer uninstall
-   ```
-
-## Additional Resources
-
+### Nix Documentation
 - [Nix Manual](https://nixos.org/manual/nix/stable/)
-- [nix-darwin Documentation](https://daiderd.com/nix-darwin/)
-- [Nixpkgs Package Search](https://search.nixos.org/packages)
+- [Nix Package Search](https://search.nixos.org/packages)
 - [Nix Flakes Guide](https://nixos.wiki/wiki/Flakes)
 
-## Support
+### Platform-Specific
+- [nix-darwin](https://github.com/LnL7/nix-darwin) (macOS)
+- [home-manager](https://nix-community.github.io/home-manager/) (Linux/Windows)
+- [WSL2 Documentation](https://docs.microsoft.com/en-us/windows/wsl/)
 
-If you encounter issues:
-1. Check the [nix-darwin GitHub repository](https://github.com/LnL7/nix-darwin) for known issues
-2. Search [NixOS Discourse](https://discourse.nixos.org/) for solutions
-3. Consult the Nix community on [Reddit r/NixOS](https://www.reddit.com/r/NixOS/)
+### Community
+- [NixOS Discourse](https://discourse.nixos.org/)
+- [r/NixOS](https://www.reddit.com/r/NixOS/)
+- [Nix Discord](https://discord.gg/RbvHtGa)
+
+## Contributing
+
+Found an improvement? PRs welcome!
+
+1. Test on your platform
+2. Update the relevant `flake.nix` and `README.md`
+3. Submit a PR with description
+
+## License
+
+MIT License - Use this however you want!
+
+---
+
+## Get Started Now!
+
+Choose your platform above and start your 5-minute setup:
+
+- 🍎 **[Mac Setup →](./mac/README.md)**
+- 🐧 **[Linux Setup →](./linux/README.md)**
+- 🪟 **[Windows Setup →](./windows/README.md)**
+
+---
+
+**Made by SDETs, for SDETs** 🚀
+
+*Stop configuring machines. Start coding faster.*

@@ -28,6 +28,10 @@
     home-manager, ...
   }:
   let
+    # CHANGE THIS: Replace with your username
+    username = "mike";
+    hostname = "mini";
+
     configuration = { config, pkgs, ... }: {
       # Use flakes & new CLI everywhere
       nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -38,6 +42,7 @@
       # CLI tools via Nix (keep GUI in Homebrew casks)
       environment.systemPackages = with pkgs; [
         vim
+        git
         colima
         gh
         gnupg
@@ -51,22 +56,22 @@
       ];
 
       # Required by newer nix-darwin
-      system.primaryUser = "mike";
+      system.primaryUser = username;
 
       # Default shell for your user
-      users.users.mike = {
-        home = "/Users/mike";
+      users.users.${username} = {
+        home = "/Users/${username}";
         shell = pkgs.zsh;
       };
 
       # Repro pin; set once and leave
       system.configurationRevision = self.rev or self.dirtyRev or null;
-      system.stateVersion = 6;
+      system.stateVersion = 5;
     };
   in
   {
-    darwinConfigurations."mini" = nix-darwin.lib.darwinSystem {
-      system = "aarch64-darwin"; # Apple Silicon
+    darwinConfigurations."${hostname}" = nix-darwin.lib.darwinSystem {
+      system = "aarch64-darwin"; # Apple Silicon (use x86_64-darwin for Intel)
       modules = [
         configuration
         mac-app-util.darwinModules.default
@@ -77,7 +82,7 @@
           nix-homebrew = {
             enable = true;          # /run/current-system/sw/bin/brew
             enableRosetta = true;   # Intel prefix via: arch -x86_64 brew
-            user = "mike";          # Homebrew owner on this Mac
+            user = username;        # Homebrew owner on this Mac
             autoMigrate = true;     # adopt existing /opt/homebrew if present
             taps = {
               "homebrew/homebrew-core" = homebrew-core;
@@ -127,9 +132,9 @@
         # Home Manager (user-level config)
         home-manager.darwinModules.home-manager
 
-        # Oh My Zsh for user "mike" (no Spaceship)
+        # Oh My Zsh for user
         ({ pkgs, ... }: {
-          home-manager.users.mike = { pkgs, ... }: {
+          home-manager.users.${username} = { pkgs, ... }: {
             home.stateVersion = "24.05";
 
             programs.zsh = {
@@ -148,3 +153,4 @@
     };
   };
 }
+

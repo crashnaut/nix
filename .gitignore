@@ -1,8 +1,22 @@
-# Nix
-/result
-/result-*
+# Nix build results
+result
+result-*
+
+# Nix development shells
 .direnv/
-.nix-channels
-# macOS noise
+.envrc
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
-EOF
+
+# Temporary test files
+test-result/
+tmp/
+
+# Local customization (if you want to test changes without committing)
+*.local.nix
