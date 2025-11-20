@@ -7,9 +7,6 @@
     nix-darwin.url = "github:nix-darwin/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Link .app bundles from Nix into Launchpad/Spotlight
-    mac-app-util.url = "github:hraban/mac-app-util";
-
     # Homebrew managed by Nix
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
 
@@ -23,80 +20,90 @@
   };
 
   outputs = inputs@{
-    self, nixpkgs, nix-darwin, mac-app-util,
-    nix-homebrew, homebrew-core, homebrew-cask,
-    home-manager, ...
+    self,
+    nixpkgs,
+    nix-darwin,
+    nix-homebrew,
+    homebrew-core,
+    homebrew-cask,
+    home-manager,
+    ...
   }:
   let
-    # CHANGE THIS: Replace with your username
-    username = "mike";
-    hostname = "mini";
+    # System configuration
+    username = "mike.sell";
+    hostname = "gendigital";
+    system = "aarch64-darwin"; # Apple Silicon (use x86_64-darwin for Intel)
 
     configuration = { config, pkgs, ... }: {
-      # Use flakes & new CLI everywhere
-      nix.settings.experimental-features = [ "nix-command" "flakes" ];
+      # Disable nix-darwin's Nix management (using Determinate Nix)
+      nix.enable = false;
 
-      # Allow unfree when needed
+      # Allow unfree packages
       nixpkgs.config.allowUnfree = true;
 
-      # CLI tools via Nix (keep GUI in Homebrew casks)
+      # System packages (CLI tools via Nix)
       environment.systemPackages = with pkgs; [
         vim
         git
-        colima
+        orbstack
         gh
         gnupg
         pinentry_mac
       ];
 
-      # Ensure Homebrew binaries (e.g. mas) are on PATH
+      # Ensure Homebrew binaries are on PATH
       environment.systemPath = [
-        "/opt/homebrew/bin" "/opt/homebrew/sbin"
-        "/usr/local/bin" "/usr/local/sbin" # Intel prefix for Rosetta if ever used
+        "/opt/homebrew/bin"
+        "/opt/homebrew/sbin"
+        "/usr/local/bin"
+        "/usr/local/sbin"
       ];
 
-      # Required by newer nix-darwin
+      # Set primary user
       system.primaryUser = username;
 
-      # Default shell for your user
+      # User configuration
       users.users.${username} = {
         home = "/Users/${username}";
         shell = pkgs.zsh;
       };
 
-      # Repro pin; set once and leave
+      # System configuration revision
       system.configurationRevision = self.rev or self.dirtyRev or null;
       system.stateVersion = 5;
+
+      # Enable zsh system-wide
+      programs.zsh.enable = true;
     };
+
   in
   {
     darwinConfigurations."${hostname}" = nix-darwin.lib.darwinSystem {
-      system = "aarch64-darwin"; # Apple Silicon (use x86_64-darwin for Intel)
+      inherit system;
       modules = [
         configuration
-        mac-app-util.darwinModules.default
 
-        # Install/manage Homebrew itself, with unified `brew` wrapper
+        # Homebrew configuration
         nix-homebrew.darwinModules.nix-homebrew
-        ({ config, ... }: {
+        {
           nix-homebrew = {
-            enable = true;          # /run/current-system/sw/bin/brew
-            enableRosetta = true;   # Intel prefix via: arch -x86_64 brew
-            user = username;        # Homebrew owner on this Mac
-            autoMigrate = true;     # adopt existing /opt/homebrew if present
+            enable = true;
+            enableRosetta = true;
+            user = username;
+            autoMigrate = true;
             taps = {
               "homebrew/homebrew-core" = homebrew-core;
               "homebrew/homebrew-cask" = homebrew-cask;
             };
-            mutableTaps = false;    # keep taps declarative
+            mutableTaps = false;
           };
 
-          # Declarative Homebrew packages
           homebrew = {
             enable = true;
-            taps = builtins.attrNames config.nix-homebrew.taps;
+            taps = [ "homebrew/homebrew-core" "homebrew/homebrew-cask" ];
 
-            # GUI apps via casks (prefer casks over MAS where possible)
+            # GUI applications via casks
             casks = [
               "brave-browser"
               "dropbox"
@@ -108,47 +115,100 @@
               "excalidrawz"
               "maccy"
               "voiceink"
+              "orbstack" # Also install via cask for GUI
             ];
 
-            # CLI brews kept minimal; include mas so MAS apps can be managed
-            brews = [ "mas" ];
+            # CLI tools from Homebrew
+            brews = [
+              "mas" # Mac App Store CLI
+            ];
 
-            # MAS only for what lacks great brew/nix options
+            # Mac App Store applications
             masApps = {
               "DaVinci Resolve" = 571213070;
-              "flowy"           = 6748351905;  # different from 'appflowy' cask
-              "Xcode"           = 497799835;   # MAS is the reliable path
+              "flowy" = 6748351905;
+              "Xcode" = 497799835;
             };
 
             onActivation = {
               autoUpdate = false;
               upgrade = false;
-              cleanup = "uninstall"; # use "zap" for deeper cleanup
+              cleanup = "uninstall";
             };
-            global.autoUpdate = true;
           };
-        })
+        }
 
-        # Home Manager (user-level config)
+        # Home Manager configuration
         home-manager.darwinModules.home-manager
-
-        # Oh My Zsh for user
-        ({ pkgs, ... }: {
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
           home-manager.users.${username} = { pkgs, ... }: {
             home.stateVersion = "24.05";
 
+            # Zsh with Oh My Zsh configuration
             programs.zsh = {
               enable = true;
               enableCompletion = true;
+              autosuggestion.enable = true;
+              syntaxHighlighting.enable = true;
 
               oh-my-zsh = {
                 enable = true;
-                theme = "robbyrussell";   # default OMZ theme
-                plugins = [ "git" ];      # match your current setup
+                theme = "robbyrussell";
+                plugins = [
+                  "git"
+                  "docker"
+                  "kubectl"
+                  "macos"
+                ];
+              };
+
+              # Environment variables
+              sessionVariables = {
+                EDITOR = "vim";
+                VISUAL = "vim";
+              };
+
+              # Shell initialization (runs after Oh My Zsh loads)
+              initContent = ''
+                # Ensure Oh My Zsh is properly configured
+                if [ -z "$ZSH" ]; then
+                  export ZSH="$HOME/.oh-my-zsh"
+                fi
+
+                # Custom aliases
+                alias ll='ls -lah'
+                alias gs='git status'
+                alias gc='git commit'
+                alias gp='git push'
+                alias gl='git pull'
+
+                # Orbstack initialization (if installed)
+                if command -v orbctl &> /dev/null; then
+                  source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+                fi
+              '';
+            };
+
+            # Git configuration
+            programs.git = {
+              enable = true;
+              settings = {
+                user.name = "Mike Sell";
+                user.email = "mike.sell@example.com"; # Change this to your email
+                init.defaultBranch = "main";
+                pull.rebase = false;
+                core.editor = "vim";
               };
             };
+
+            # Additional home packages
+            home.packages = with pkgs; [
+              # Add any additional user-specific packages here
+            ];
           };
-        })
+        }
       ];
     };
   };
