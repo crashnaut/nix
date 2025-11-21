@@ -66,6 +66,16 @@
               enable = true;
               userName = "Your Name";
               userEmail = "your.email@example.com";
+              extraConfig = {
+                init.defaultBranch = "main";
+                pull.rebase = false;
+                core.editor = "vim";
+                # GPG signing configuration
+                commit.gpgsign = true;
+                gpg.program = "${pkgs.gnupg}/bin/gpg";
+                # Note: After generating your GPG key, add:
+                # user.signingkey = "YOUR_GPG_KEY_ID";
+              };
             };
 
             # Zsh with Oh My Zsh
@@ -83,6 +93,11 @@
                 ll = "ls -lah";
                 update = "home-manager switch --flake ~/.config/nix#${username}";
               };
+              
+              # Set GPG_TTY for GPG signing
+              initExtra = ''
+                export GPG_TTY=$(tty)
+              '';
             };
 
             # Bash configuration (fallback)
@@ -92,11 +107,24 @@
                 ll = "ls -lah";
                 update = "home-manager switch --flake ~/.config/nix#${username}";
               };
+              
+              # Set GPG_TTY for GPG signing
+              initExtra = ''
+                export GPG_TTY=$(tty)
+              '';
             };
 
             # GPG configuration
             programs.gpg = {
               enable = true;
+            };
+
+            # GPG Agent configuration
+            services.gpg-agent = {
+              enable = true;
+              enableSshSupport = true;
+              defaultCacheTtl = 3600;
+              maxCacheTtl = 7200;
             };
 
             # Let Home Manager manage itself

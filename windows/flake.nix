@@ -69,7 +69,15 @@
               extraConfig = {
                 core = {
                   autocrlf = "input";
+                  editor = "vim";
                 };
+                init.defaultBranch = "main";
+                pull.rebase = false;
+                # GPG signing configuration
+                commit.gpgsign = true;
+                gpg.program = "${pkgs.gnupg}/bin/gpg";
+                # Note: After generating your GPG key, add:
+                # user.signingkey = "YOUR_GPG_KEY_ID";
               };
             };
 
@@ -95,6 +103,9 @@
               
               # WSL-specific environment setup
               initExtra = ''
+                # Set GPG_TTY for commit signing
+                export GPG_TTY=$(tty)
+                
                 # Add Windows paths if needed
                 # export PATH="$PATH:/mnt/c/Windows/System32"
                 
@@ -112,11 +123,24 @@
                 explorer = "explorer.exe";
                 cdwin = "cd /mnt/c/Users/${username}";
               };
+              
+              # Set GPG_TTY for commit signing
+              initExtra = ''
+                export GPG_TTY=$(tty)
+              '';
             };
 
             # GPG configuration
             programs.gpg = {
               enable = true;
+            };
+
+            # GPG Agent configuration
+            services.gpg-agent = {
+              enable = true;
+              enableSshSupport = true;
+              defaultCacheTtl = 3600;
+              maxCacheTtl = 7200;
             };
 
             # Let Home Manager manage itself

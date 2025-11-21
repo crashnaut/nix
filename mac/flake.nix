@@ -168,14 +168,18 @@
               sessionVariables = {
                 EDITOR = "vim";
                 VISUAL = "vim";
+                GPG_TTY = "$(tty)";
               };
 
               # Shell initialization (runs after Oh My Zsh loads)
-              initContent = ''
+              initExtra = ''
                 # Ensure Oh My Zsh is properly configured
                 if [ -z "$ZSH" ]; then
                   export ZSH="$HOME/.oh-my-zsh"
                 fi
+
+                # Set GPG_TTY for commit signing
+                export GPG_TTY=$(tty)
 
                 # Custom aliases
                 alias ll='ls -lah'
@@ -194,13 +198,32 @@
             # Git configuration
             programs.git = {
               enable = true;
-              settings = {
-                user.name = "Mike Sell";
-                user.email = "mike.sell@example.com"; # Change this to your email
+              userName = "Your Name";
+              userEmail = "your.email@example.com";
+              extraConfig = {
                 init.defaultBranch = "main";
                 pull.rebase = false;
                 core.editor = "vim";
+                # GPG signing configuration
+                commit.gpgsign = true;
+                gpg.program = "${pkgs.gnupg}/bin/gpg";
+                # Note: After generating your GPG key, add:
+                # user.signingkey = "YOUR_GPG_KEY_ID";
               };
+            };
+
+            # GPG configuration
+            programs.gpg = {
+              enable = true;
+            };
+
+            # GPG Agent configuration (for macOS)
+            services.gpg-agent = {
+              enable = true;
+              enableSshSupport = true;
+              pinentryPackage = pkgs.pinentry_mac;
+              defaultCacheTtl = 3600;
+              maxCacheTtl = 7200;
             };
 
             # Additional home packages
