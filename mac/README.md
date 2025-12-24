@@ -6,7 +6,7 @@ A declarative macOS configuration using nix-darwin, Homebrew, and Home Manager.
 
 - **System Packages**: vim, git, colima, gh, gnupg
 - **GUI Apps**: Brave, Slack, Postman, Logseq, Telegram, WhatsApp, Dropbox
-- **Developer Tools**: Xcode, DaVinci Resolve, Excalidraw
+- **Developer Tools**: Excalidraw
 - **Shell**: Zsh with Oh My Zsh
 - **Spotlight Integration**: All apps searchable via `⌘ + Space`
 

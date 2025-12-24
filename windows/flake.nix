@@ -62,14 +62,14 @@
             # Git configuration
             programs.git = {
               enable = true;
-              userName = "Your Name";
-              userEmail = "your.email@example.com";
+              userName = "crashnaut";
+              userEmail = "crashnaut@protonmail.com";
               
               # WSL-specific: Handle line endings properly
               extraConfig = {
                 core = {
                   autocrlf = "input";
-                  editor = "vim";
+                  editor = "nano";
                 };
                 init.defaultBranch = "main";
                 pull.rebase = false;

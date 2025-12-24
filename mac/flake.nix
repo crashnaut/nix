@@ -31,8 +31,8 @@
   }:
   let
     # System configuration
-    username = "mike.sell";
-    hostname = "gendigital";
+    username = "mike";
+    hostname = "conduit";
     system = "aarch64-darwin"; # Apple Silicon (use x86_64-darwin for Intel)
 
     configuration = { config, pkgs, ... }: {
@@ -125,9 +125,7 @@
 
             # Mac App Store applications
             masApps = {
-              "DaVinci Resolve" = 571213070;
               "flowy" = 6748351905;
-              "Xcode" = 497799835;
             };
 
             onActivation = {
@@ -166,8 +164,8 @@
 
               # Environment variables
               sessionVariables = {
-                EDITOR = "vim";
-                VISUAL = "vim";
+                EDITOR = "nano";
+                VISUAL = "nano";
                 GPG_TTY = "$(tty)";
               };
 
@@ -198,12 +196,12 @@
             # Git configuration
             programs.git = {
               enable = true;
-              userName = "Your Name";
-              userEmail = "your.email@example.com";
+              userName = "crashnaut";
+              userEmail = "crashnaut@protonmail.com";
               extraConfig = {
                 init.defaultBranch = "main";
                 pull.rebase = false;
-                core.editor = "vim";
+                core.editor = "nano";
                 # GPG signing configuration
                 commit.gpgsign = true;
                 gpg.program = "${pkgs.gnupg}/bin/gpg";

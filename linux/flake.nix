@@ -64,12 +64,12 @@
             # Git configuration
             programs.git = {
               enable = true;
-              userName = "Your Name";
-              userEmail = "your.email@example.com";
+              userName = "crashnaut";
+              userEmail = "crashnaut@protonmail.com";
               extraConfig = {
                 init.defaultBranch = "main";
                 pull.rebase = false;
-                core.editor = "vim";
+                core.editor = "nano";
                 # GPG signing configuration
                 commit.gpgsign = true;
                 gpg.program = "${pkgs.gnupg}/bin/gpg";
